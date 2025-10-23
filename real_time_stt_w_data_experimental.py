@@ -192,14 +192,14 @@ try:
         input_max_amp = np.max(np.abs(input_audio_frame))
 
         # 1. Wiener Filter Denoise
-        cleaned_audio_spectral = wiener_filter_denoise(data_to_process)
+        cleaned_audio = wiener_filter_denoise(data_to_process)
 
-        output_max_amp = np.max(np.abs(cleaned_audio_spectral))
+        output_max_amp = np.max(np.abs(cleaned_audio))
         reduction_factor = (input_max_amp - output_max_amp) / input_max_amp if input_max_amp > 0 else 0
         total_reduction_factor += reduction_factor
 
         # 2. Vosk Transcription (Partial always printed, Result when segment ends)
-        if rec.AcceptWaveform(cleaned_audio_spectral.tobytes()):
+        if rec.AcceptWaveform(cleaned_audio.tobytes()):
             result = eval(rec.Result())
             transcribed_text = result.get('text', '').strip()
 
@@ -225,7 +225,7 @@ try:
             print(f"Partial: {partial_result.get('partial')}", end='\r')
 
         # Play the CLEANED audio back (Optional)
-        stream_out.write(cleaned_audio_spectral.tobytes())
+        stream_out.write(cleaned_audio.tobytes())
 
         end_time = time.perf_counter()
         processing_time = (end_time - start_time) * 1000

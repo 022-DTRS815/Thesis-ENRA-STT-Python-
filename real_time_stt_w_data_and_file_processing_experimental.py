@@ -249,14 +249,13 @@ try:
         input_max_amp = np.max(np.abs(input_audio_frame))
 
         # 1. Wiener Filter Denoise (Replaced Median Filter and Spectral Subtraction)
-        cleaned_audio_spectral = wiener_filter_denoise(data_to_process)
-
-        output_max_amp = np.max(np.abs(cleaned_audio_spectral))
+        cleaned_audio = wiener_filter_denoise(data_to_process)
+        output_max_amp = np.max(np.abs(cleaned_audio))
         reduction_factor = (input_max_amp - output_max_amp) / input_max_amp if input_max_amp > 0 else 0
         total_reduction_factor += reduction_factor
 
         # 2. Vosk Transcription
-        if rec.AcceptWaveform(cleaned_audio_spectral.tobytes()):
+        if rec.AcceptWaveform(cleaned_audio.tobytes()):
             result = eval(rec.Result())
             print(f"[{total_frames}] Segment Transcribed: {result['text']}", end='\r')
             if result.get('text'):
@@ -267,7 +266,7 @@ try:
 
         # Play the CLEANED audio back
         try:
-            stream.write(cleaned_audio_spectral.tobytes())
+            stream.write(cleaned_audio.tobytes())
         except IOError as e:
             if e.errno == -9999:
                 print(f"\n--- FATAL ERROR: [Errno -9999] Unanticipated host error detected. Exiting loop. ---")
@@ -292,7 +291,7 @@ except Exception as e:
 
 finally:
     # -----------------------------------------------------------
-    # FINAL EVALUATION SUMMARY (Unchanged)
+    # FINAL EVALUATION SUMMARY
     # -----------------------------------------------------------
 
     final_transcription = ""
@@ -341,8 +340,9 @@ finally:
         avg_reduction_factor = (total_reduction_factor / total_frames) * 100
         print(f"\n--- 3. Noise Reduction (NR) Effectiveness ---")
         print(f"Algorithm Used: Wiener Filter + Adaptive Noise Tracking")
+        print(f"Noise Profile Frames: {noise_frames_count}")
         print(f"Average Amplitude Reduction: {avg_reduction_factor:.2f}%")
-        print(f"Conclusion: Wiener filter provides smoother noise reduction than spectral subtraction.")
+
 
     print("=================================================================")
 
