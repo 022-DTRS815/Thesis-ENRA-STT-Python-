@@ -73,7 +73,7 @@ def update_noise_profile(audio_frame):
         spectrum = fft(audio_frame)
         power_spectrum = np.abs(spectrum[:CHUNK // 2 + 1]) ** 2
 
-        # Simple averaging (can be improved with EWMA)
+        # Simple averaging
         noise_profile = (noise_profile * noise_frames_count + power_spectrum) / (noise_frames_count + 1)
         noise_frames_count += 1
         return True
