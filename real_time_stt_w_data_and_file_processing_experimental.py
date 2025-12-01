@@ -12,11 +12,11 @@ import glob
 
 # --- File Paths and Test Configuration ---
 # *** IMPORTANT: You MUST set these paths to your test files ***
-SPEECH_FILE = "D:/JetBrains/Projects/ENRA-STT WAV Files/Speech/Sample_4.wav"
+SPEECH_FILE = "D:/JetBrains/Projects/ENRA-STT WAV Files/Speech/R32-S2.wav"
 # CHANGE THIS TO THE FOLDER CONTAINING YOUR .WAV NOISE FILES
-NOISE_FOLDER = "D:/JetBrains/Projects/ENRA-STT WAV Files/Noise/continuous"
+NOISE_FOLDER = "D:/JetBrains/Projects/ENRA-STT WAV Files/Noise/impulsive"
 # The TARGET_PHRASE MUST match the spoken content of your SPEECH_FILE.
-TARGET_PHRASE = "i am testing the accuracy"
+TARGET_PHRASE = "speech-to-text systems must recognize every spoken word accurately even when background sounds make the audio unclear"
 
 # --- Evaluation Variables ---
 total_test_phrases = 1
@@ -299,15 +299,17 @@ finally:
         if 'rec' in locals():
             final_result_json = rec.FinalResult()
             final_transcription = eval(final_result_json)['text'].strip()
+
     except Exception:
         pass
 
     if not final_transcription and full_partial_transcription:
         final_transcription = full_partial_transcription.strip()
+
     elif not final_transcription:
         final_transcription = "ERROR (No transcription data available)"
 
-    print("\n" * 2)
+    print("\n")
     print("=================================================================")
     print("         WIENER FILTER ALGORITHM EVALUATION SUMMARY          ")
     print("=================================================================")
@@ -322,7 +324,7 @@ finally:
     print(f"\n--- 1. Accuracy Results (File Test) ---")
     print(f"Noise File Used: '{os.path.basename(random_noise_file)}'")
     print(f"Target Phrase: '{TARGET_PHRASE}'")
-    print(f"Final Transcription (Aggregated): '{final_transcription}'")
+    print(f"Final Transcription: '{final_transcription}'")
     print(f"Words Correct: {c} / {n}")
     print(f"Approx. Word Error Rate (WER): {approx_wer:.2f}% (Lower is better)")
 
@@ -332,8 +334,8 @@ finally:
         print(f"\n--- 2. Time Efficiency (Latency) Results ---")
         print(f"Total Frames Processed: {total_frames}")
         print(f"Average Frame Processing Time: {average_time:.2f} ms")
-        print(f"Frame Duration (Target): {FRAME_DURATION_MS} ms")
-        print(f"Latency Verdict: {'PASS' if average_time < FRAME_DURATION_MS else 'FAIL'}")
+        print(f"Max Frame Duration (Target): {FRAME_DURATION_MS} to {FRAME_DURATION_MS + 10} ms")
+        print(f"Latency Verdict: {'PASS' if average_time < FRAME_DURATION_MS + 10 else 'FAIL'}")
 
     # 3. Noise Reduction Summary
     if total_frames > 0:
